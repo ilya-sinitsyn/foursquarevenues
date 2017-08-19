@@ -38,7 +38,7 @@ public class VenuesPresenter {
                             venueAddress += " " + venueObject.getJSONObject("location").getString("city");
                         }
 
-                        double venueDistance = 0;
+                        double venueDistance = -1;
                         if (venueObject.getJSONObject("location").has("distance")) {
                             venueDistance = venueObject.getJSONObject("location").getDouble("distance");
                         }

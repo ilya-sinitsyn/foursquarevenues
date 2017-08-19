@@ -13,7 +13,14 @@ public class VenueInfo {
     }
 
     public String toString() {
-        return mName + ", " + mAddress + ", " + mDistance + "m";
+        String result = mName;
+        if (mAddress != null && mAddress.length() > 0) {
+            result += ", " + mAddress;
+        }
+        if (mDistance >= 0) {
+            result += ", " + mDistance + "m";
+        }
+        return result;
     }
 
     public double getDistance() {
