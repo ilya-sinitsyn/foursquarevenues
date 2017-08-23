@@ -23,19 +23,19 @@ public class VenuesPresenterInstrumentedTest {
 
     @Test
     public void processSearchString() throws Exception {
-        CountDownLatch lock = new CountDownLatch(1);
         Context appContext = InstrumentationRegistry.getTargetContext();
         MainActivityOperationsMock mainActivityOperationsMock = new MainActivityOperationsMock();
-        VenuesPresenter venuesPresenter = new VenuesPresenter(appContext, mainActivityOperationsMock);
+        VenuesModelMock venuesModelMock = new VenuesModelMock();
+        VenuesPresenter venuesPresenter = new VenuesPresenter(appContext, mainActivityOperationsMock,
+                venuesModelMock);
+        venuesModelMock.setPresenterOperations(venuesPresenter);
 
-        venuesPresenter.processSearchString("sello");
-        lock.await(5000, TimeUnit.MILLISECONDS);
+        venuesPresenter.processSearchString("sushi");
         assertTrue(mainActivityOperationsMock.isSuccess());
     }
 
     @Test
     public void processSearchStringModelError() throws Exception {
-        CountDownLatch lock = new CountDownLatch(1);
         Context appContext = InstrumentationRegistry.getTargetContext();
         MainActivityOperationsMock mainActivityOperationsMock = new MainActivityOperationsMock();
         VenuesModelErrorMock venuesModelErrorMock = new VenuesModelErrorMock();
@@ -44,13 +44,11 @@ public class VenuesPresenterInstrumentedTest {
         venuesModelErrorMock.setPresenterOperations(venuesPresenter);
 
         venuesPresenter.processSearchString("sello");
-        lock.await(5000, TimeUnit.MILLISECONDS);
         assertTrue(mainActivityOperationsMock.isFailed());
     }
 
     @Test
     public void processSearchStringModelInvalidResponse() throws Exception {
-        CountDownLatch lock = new CountDownLatch(1);
         Context appContext = InstrumentationRegistry.getTargetContext();
         MainActivityOperationsMock mainActivityOperationsMock = new MainActivityOperationsMock();
         VenuesModelInvalidResponseMock venuesModelInvalidResponseMock = new VenuesModelInvalidResponseMock();
@@ -59,7 +57,6 @@ public class VenuesPresenterInstrumentedTest {
         venuesModelInvalidResponseMock.setPresenterOperations(venuesPresenter);
 
         venuesPresenter.processSearchString("sello");
-        lock.await(5000, TimeUnit.MILLISECONDS);
         assertTrue(mainActivityOperationsMock.isFailed());
     }
 }
