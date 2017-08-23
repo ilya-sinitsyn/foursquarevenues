@@ -1,6 +1,7 @@
 package com.example.myfirstandroidapp;
 
 public class VenueInfo {
+
     private String mName;
     private String mAddress;
     private double mDistance;

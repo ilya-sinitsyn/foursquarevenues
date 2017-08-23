@@ -14,77 +14,81 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainActivityOperations {
 
-    private VenuesPresenter mVenuesPresenter;
+    private static final int PERMISSION_REQUEST_LOCATION = 0;
+    private VenuesPresenterRequests mVenuesPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mVenuesPresenter = new VenuesPresenter(this);
+        mVenuesPresenter = new VenuesPresenter(this, this);
 
         requestPermissions();
         startSearchTextChangesListener();
     }
 
-    private void requestPermissions() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
-            ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION }, 0 );
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_LOCATION: {
+                if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    showErrorMessage("Application cannot search venues without access to the " +
+                            "location services. You can grant permission to use location services" +
+                            "in the device settings.");
+                }
+            }
         }
     }
 
-    private void refreshVenueList(List<VenueInfo> venueList) {
+    public void displayListOfVenues(List<VenueInfo> venueList) {
         Collections.sort(venueList, new VenueInfoComparator());
         ArrayAdapter adapter = new ArrayAdapter<VenueInfo>(this, R.layout.activity_listview, venueList);
         ListView listView = (ListView) findViewById(R.id.venue_list);
         listView.setAdapter(adapter);
     }
 
+    public void displayMessageOnVenuesSearchingFailed(String errorMessage) {
+        showErrorMessage(errorMessage);
+    }
+
+    private void requestPermissions() {
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions(this, new String[] {
+                    android.Manifest.permission.ACCESS_FINE_LOCATION }, PERMISSION_REQUEST_LOCATION );
+        }
+    }
+
     private void startSearchTextChangesListener() {
         EditText searchTextView = (EditText) findViewById(R.id.search_text_input);
         searchTextView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (s.length() == 0) {
-                    refreshVenueList(new ArrayList<VenueInfo>());
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 }
-                else {
-                    mVenuesPresenter.fetchVenues(s.toString(), new VenuesPresenterListener() {
-                        @Override
-                        public void onVenuesReady(List<VenueInfo> venuesList) {
-                            refreshVenueList(venuesList);
-                        }
 
-                        @Override
-                        public void onError() {
-                            showErrorMessage();
-                        }
-                    });
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
                 }
-            }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    mVenuesPresenter.processSearchString(s.toString());
+                }
         });
     }
 
-    private void showErrorMessage() {
+    private void showErrorMessage(String errorMessage) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Venues fetching failed");
+        builder.setMessage(errorMessage);
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            }
+                public void onClick(DialogInterface dialog, int id) {
+                }
         });
 
         AlertDialog alert = builder.create();

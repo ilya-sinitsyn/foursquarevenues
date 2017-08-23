@@ -7,8 +7,6 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -19,29 +17,49 @@ import static org.junit.Assert.*;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
+
 @RunWith(AndroidJUnit4.class)
 public class VenuesPresenterInstrumentedTest {
 
     @Test
-    public void fetchVenuesList() throws Exception {
+    public void processSearchString() throws Exception {
         CountDownLatch lock = new CountDownLatch(1);
-        final List<VenueInfo> results = new ArrayList<VenueInfo>();;
-
         Context appContext = InstrumentationRegistry.getTargetContext();
-        VenuesPresenter venuesPresenter = new VenuesPresenter(appContext);
-        assertNotNull(venuesPresenter);
-        venuesPresenter.fetchVenues("sello", new VenuesPresenterListener() {
-            @Override
-            public void onVenuesReady(List<VenueInfo> venuesList) {
-                results.addAll(venuesList);
-            }
+        MainActivityOperationsMock mainActivityOperationsMock = new MainActivityOperationsMock();
+        VenuesPresenter venuesPresenter = new VenuesPresenter(appContext, mainActivityOperationsMock);
 
-            @Override
-            public void onError() {
-            }
-        });
-
+        venuesPresenter.processSearchString("sello");
         lock.await(5000, TimeUnit.MILLISECONDS);
-        assertTrue(results.size() > 0);
+        assertTrue(mainActivityOperationsMock.isSuccess());
+    }
+
+    @Test
+    public void processSearchStringModelError() throws Exception {
+        CountDownLatch lock = new CountDownLatch(1);
+        Context appContext = InstrumentationRegistry.getTargetContext();
+        MainActivityOperationsMock mainActivityOperationsMock = new MainActivityOperationsMock();
+        VenuesModelErrorMock venuesModelErrorMock = new VenuesModelErrorMock();
+        VenuesPresenter venuesPresenter = new VenuesPresenter(appContext, mainActivityOperationsMock,
+                venuesModelErrorMock);
+        venuesModelErrorMock.setPresenterOperations(venuesPresenter);
+
+        venuesPresenter.processSearchString("sello");
+        lock.await(5000, TimeUnit.MILLISECONDS);
+        assertTrue(mainActivityOperationsMock.isFailed());
+    }
+
+    @Test
+    public void processSearchStringModelInvalidResponse() throws Exception {
+        CountDownLatch lock = new CountDownLatch(1);
+        Context appContext = InstrumentationRegistry.getTargetContext();
+        MainActivityOperationsMock mainActivityOperationsMock = new MainActivityOperationsMock();
+        VenuesModelInvalidResponseMock venuesModelInvalidResponseMock = new VenuesModelInvalidResponseMock();
+        VenuesPresenter venuesPresenter = new VenuesPresenter(appContext, mainActivityOperationsMock,
+                venuesModelInvalidResponseMock);
+        venuesModelInvalidResponseMock.setPresenterOperations(venuesPresenter);
+
+        venuesPresenter.processSearchString("sello");
+        lock.await(5000, TimeUnit.MILLISECONDS);
+        assertTrue(mainActivityOperationsMock.isFailed());
     }
 }
