@@ -2,6 +2,7 @@ package com.example.myfirstandroidapp;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityOpera
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mVenuesPresenter = new VenuesPresenter(this, this);
+        mVenuesPresenter = new VenuesPresenter(this);
 
         requestPermissions();
         startSearchTextChangesListener();
@@ -46,6 +47,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityOpera
         }
     }
 
+    @Override
+    public Context getActivityContext() {
+        return this;
+    }
+
+    @Override
     public void displayListOfVenues(List<VenueInfo> venueList) {
         Collections.sort(venueList, new VenueInfoComparator());
         ArrayAdapter adapter = new ArrayAdapter<VenueInfo>(this, R.layout.activity_listview, venueList);
@@ -53,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityOpera
         listView.setAdapter(adapter);
     }
 
+    @Override
     public void displayMessageOnVenuesSearchingFailed(String errorMessage) {
         showErrorMessage(errorMessage);
     }

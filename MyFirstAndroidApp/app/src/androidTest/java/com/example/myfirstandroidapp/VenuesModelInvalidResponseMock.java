@@ -8,6 +8,7 @@ public class VenuesModelInvalidResponseMock implements VenuesModelRequests {
         mVenuesPresenterOperations = venuesPresenterOperations;
     }
 
+    @Override
     public void fetchVenues(String searchString) {
         mVenuesPresenterOperations.processData("invalid response");
     }

@@ -6,34 +6,52 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 public class VenuesPresenter implements VenuesPresenterRequests, VenuesPresenterOperations {
 
     private VenuesModelRequests mVenuesModel;
-    private MainActivityOperations mViewOperations;
+    private WeakReference<MainActivityOperations> mViewOperations;
 
-    public VenuesPresenter(Context activityContext, MainActivityOperations viewOperation) {
-        mVenuesModel = new VenuesModel(activityContext, this);
-        mViewOperations = viewOperation;
+    public VenuesPresenter(MainActivityOperations viewOperation) {
+        mVenuesModel = new VenuesModel(this);
+        mViewOperations = new WeakReference<MainActivityOperations>(viewOperation);
     }
 
-    public VenuesPresenter(Context activityContext, MainActivityOperations viewOperation,
+    public VenuesPresenter(MainActivityOperations viewOperation,
                            VenuesModelRequests venuesModel) {
         mVenuesModel = venuesModel;
-        mViewOperations = viewOperation;
+        mViewOperations = new WeakReference<MainActivityOperations>(viewOperation);
     }
 
+    @Override
+    public Context getActivityContext() {
+        try {
+            return getView().getActivityContext();
+        }
+        catch (NullPointerException e) {
+            return null;
+        }
+    }
+
+    @Override
     public void processSearchString(String searchString) {
         if (searchString.length() == 0) {
-            mViewOperations.displayListOfVenues(new ArrayList<VenueInfo>());
+            try {
+                getView().displayListOfVenues(new ArrayList<VenueInfo>());
+            }
+            catch (NullPointerException e) {
+                e.printStackTrace();
+            }
         }
         else {
             mVenuesModel.fetchVenues(searchString);
         }
     }
 
+    @Override
     public void processData(String data) {
         List<VenueInfo> venueList = new ArrayList<VenueInfo>();
         try {
@@ -60,14 +78,35 @@ public class VenuesPresenter implements VenuesPresenterRequests, VenuesPresenter
                 VenueInfo venueInfo = new VenueInfo(venueName, venueAddress, venueDistance);
                 venueList.add(venueInfo);
             }
-            mViewOperations.displayListOfVenues(venueList);
+            getView().displayListOfVenues(venueList);
         }
-        catch (JSONException e) {
-            mViewOperations.displayMessageOnVenuesSearchingFailed("Failed to parse venues data.");
+        catch (JSONException jsonException) {
+            try {
+                getView().displayMessageOnVenuesSearchingFailed("Failed to parse venues data.");
+            }
+            catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+        catch (NullPointerException e) {
+            e.printStackTrace();
         }
     }
 
+    @Override
     public void handleError(String errorMessage) {
-        mViewOperations.displayMessageOnVenuesSearchingFailed(errorMessage);
+        try {
+            getView().displayMessageOnVenuesSearchingFailed(errorMessage);
+        }
+        catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private MainActivityOperations getView() throws NullPointerException{
+        if ( mViewOperations != null )
+            return mViewOperations.get();
+        else
+            throw new NullPointerException("View is unavailable");
     }
 }

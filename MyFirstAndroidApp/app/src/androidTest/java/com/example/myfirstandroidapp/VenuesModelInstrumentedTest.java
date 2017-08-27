@@ -24,8 +24,9 @@ public class VenuesModelInstrumentedTest {
     public void fetchVenuesList() throws Exception {
         CountDownLatch lock = new CountDownLatch(1);
         Context appContext = InstrumentationRegistry.getTargetContext();
-        VenuesPresenterOperationsMock venuesPresenterOperationsMock = new VenuesPresenterOperationsMock();
-        VenuesModel venuesModel = new VenuesModel(appContext, venuesPresenterOperationsMock);
+        VenuesPresenterOperationsMock venuesPresenterOperationsMock =
+                new VenuesPresenterOperationsMock(appContext);
+        VenuesModel venuesModel = new VenuesModel(venuesPresenterOperationsMock);
         assertNotNull(venuesModel);
 
         venuesModel.fetchVenues("sello");

@@ -7,9 +7,6 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.Assert.*;
 
 /**
@@ -24,9 +21,10 @@ public class VenuesPresenterInstrumentedTest {
     @Test
     public void processSearchString() throws Exception {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        MainActivityOperationsMock mainActivityOperationsMock = new MainActivityOperationsMock();
+        MainActivityOperationsMock mainActivityOperationsMock =
+                new MainActivityOperationsMock(appContext);
         VenuesModelMock venuesModelMock = new VenuesModelMock();
-        VenuesPresenter venuesPresenter = new VenuesPresenter(appContext, mainActivityOperationsMock,
+        VenuesPresenter venuesPresenter = new VenuesPresenter( mainActivityOperationsMock,
                 venuesModelMock);
         venuesModelMock.setPresenterOperations(venuesPresenter);
 
@@ -37,9 +35,10 @@ public class VenuesPresenterInstrumentedTest {
     @Test
     public void processSearchStringModelError() throws Exception {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        MainActivityOperationsMock mainActivityOperationsMock = new MainActivityOperationsMock();
+        MainActivityOperationsMock mainActivityOperationsMock =
+                new MainActivityOperationsMock(appContext);
         VenuesModelErrorMock venuesModelErrorMock = new VenuesModelErrorMock();
-        VenuesPresenter venuesPresenter = new VenuesPresenter(appContext, mainActivityOperationsMock,
+        VenuesPresenter venuesPresenter = new VenuesPresenter(mainActivityOperationsMock,
                 venuesModelErrorMock);
         venuesModelErrorMock.setPresenterOperations(venuesPresenter);
 
@@ -50,9 +49,10 @@ public class VenuesPresenterInstrumentedTest {
     @Test
     public void processSearchStringModelInvalidResponse() throws Exception {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        MainActivityOperationsMock mainActivityOperationsMock = new MainActivityOperationsMock();
+        MainActivityOperationsMock mainActivityOperationsMock =
+                new MainActivityOperationsMock(appContext);
         VenuesModelInvalidResponseMock venuesModelInvalidResponseMock = new VenuesModelInvalidResponseMock();
-        VenuesPresenter venuesPresenter = new VenuesPresenter(appContext, mainActivityOperationsMock,
+        VenuesPresenter venuesPresenter = new VenuesPresenter(mainActivityOperationsMock,
                 venuesModelInvalidResponseMock);
         venuesModelInvalidResponseMock.setPresenterOperations(venuesPresenter);
 

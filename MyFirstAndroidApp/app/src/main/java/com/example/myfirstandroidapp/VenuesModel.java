@@ -17,18 +17,19 @@ public class VenuesModel implements VenuesModelRequests {
 
     private static final String CLIENT_ID = "xxx";
     private static final String CLIENT_SECRET = "yyy";
+
     private LocationManager mLocationManager;
     private RequestQueue mRequestQueue;
-    private Context mActivityContext;
     private VenuesPresenterOperations mVenuesPresenterOperations;
 
-    public VenuesModel(Context activityContext, VenuesPresenterOperations venuesPresenterOperations) {
-        this.mActivityContext = activityContext;
+    public VenuesModel(VenuesPresenterOperations venuesPresenterOperations) {
         mVenuesPresenterOperations = venuesPresenterOperations;
     }
 
+    @Override
     public void fetchVenues(String searchString) {
-        if (ContextCompat.checkSelfPermission(mActivityContext,
+        if (ContextCompat.checkSelfPermission(
+                mVenuesPresenterOperations.getActivityContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
             mVenuesPresenterOperations.handleError("You denied application to use location service. " +
                     "You can grant permission to use location services in the device settings.");
@@ -52,7 +53,7 @@ public class VenuesModel implements VenuesModelRequests {
                 "&query=" + searchString;
 
         if (mRequestQueue == null) {
-            mRequestQueue = Volley.newRequestQueue(mActivityContext);
+            mRequestQueue = Volley.newRequestQueue(mVenuesPresenterOperations.getActivityContext());
         }
         else {
             mRequestQueue.cancelAll(new RequestQueue.RequestFilter() {
@@ -85,7 +86,8 @@ public class VenuesModel implements VenuesModelRequests {
         Location location = null;
         try {
             if (mLocationManager == null) {
-                mLocationManager = (LocationManager) mActivityContext.getSystemService(Context.LOCATION_SERVICE);
+                mLocationManager = (LocationManager) mVenuesPresenterOperations.
+                        getActivityContext().getSystemService(Context.LOCATION_SERVICE);
             }
             location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (location == null) {
@@ -95,6 +97,10 @@ public class VenuesModel implements VenuesModelRequests {
         catch (SecurityException e) {
             e.printStackTrace();
         }
+        catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
         return location;
     }
 }

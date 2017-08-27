@@ -8,6 +8,7 @@ public class VenuesModelErrorMock implements VenuesModelRequests  {
         mVenuesPresenterOperations = venuesPresenterOperations;
     }
 
+    @Override
     public void fetchVenues(String searchString) {
         mVenuesPresenterOperations.handleError("error");
     }

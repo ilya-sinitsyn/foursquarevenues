@@ -7,6 +7,7 @@ public class VenuesModelMock implements VenuesModelRequests {
         mVenuesPresenterOperations = venuesPresenterOperations;
     }
 
+    @Override
     public void fetchVenues(String searchString) {
         String response = "{\"meta\":{\"code\":200,\"requestId\":\"5995c66b351e3d5f7d961438\"}," +
                 "\"response\":{\"venues\":[{\"id\":\"5970a791efa82a5693013e8f\",\"name\":" +
